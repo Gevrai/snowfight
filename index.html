@@ -14,36 +14,36 @@
     <div id="ui">
         <div id="startScreen" class="screen active">
             <h1>Snowfight!</h1>
-            <p>Tap your player to select, tap ground to move. Long-press to charge throw, release to fire!</p>
+            <p>Drag your player to move. Hold still to charge throw. Tap 10x fast to reload!</p>
             <button class="btn" onclick="startGame()">Play</button>
         </div>
 
         <div id="winScreen" class="screen">
             <h1>Victory!</h1>
-            <p>You knocked out the enemy team!</p>
+            <p>You knocked out your opponent!</p>
             <button class="btn" onclick="startGame()">Play Again</button>
         </div>
 
         <div id="loseScreen" class="screen">
             <h1>Defeated!</h1>
-            <p>Your team was knocked out!</p>
+            <p>You were knocked out!</p>
             <button class="btn" onclick="startGame()">Try Again</button>
         </div>
     </div>
 
     <div id="hud" style="display: none;">
         <div class="team-status blue">
-            <div><strong>Your Team</strong></div>
+            <div><strong>You</strong></div>
             <div id="blueHealth"></div>
         </div>
         <div class="team-status red">
-            <div><strong>Enemy Team</strong></div>
+            <div><strong>Enemy</strong></div>
             <div id="redHealth"></div>
         </div>
     </div>
 
     <div id="instructions" style="display: none;">
-        Tap player to select | Tap ground to move | Long-press to charge & throw
+        Drag to move | Hold to charge & throw | Tap 10x to reload
     </div>
 
     <script src="game.js"></script>

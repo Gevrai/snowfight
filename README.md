@@ -1,14 +1,14 @@
 # Snowfight!
 
-A 2v2 snowball fight game playable in the browser.
+A 1v1 snowball fight game playable in the browser.
 
 ## How to Play
 
-- **Select**: Tap/click a blue team player to select them
-- **Move**: Tap/click the ground to move the selected player
-- **Throw**: Long-press to charge, release to throw (longer press = further throw)
+- **Move**: Drag your player to move (character follows at walking speed)
+- **Throw**: Hold still on player to charge, release to throw
+- **Reload**: Tap player 10 times fast to get another snowball (max 3)
 
-Knock out both opponents by hitting them twice each. Players auto-prepare snowballs when idle (max 3).
+Hit your opponent twice to win. Both players can be controlled with multi-touch for local 2-player!
 
 ## Run Locally
 
