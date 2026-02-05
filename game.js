@@ -53,10 +53,16 @@ function resizeCanvas() {
 }
 
 // ============= COORDINATE CONVERSION =============
+function getScale() {
+    // Scale to fill the canvas, accounting for isometric squash on Y
+    const effectiveArenaHeight = CONFIG.ARENA_HEIGHT * CONFIG.ISO_ANGLE + CONFIG.WALL_HEIGHT;
+    return Math.min(canvas.width / CONFIG.ARENA_WIDTH, canvas.height / effectiveArenaHeight);
+}
+
 function toScreen(x, y, z = 0) {
     const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2 + 20;
-    const scale = Math.min(canvas.width / CONFIG.ARENA_WIDTH, canvas.height / CONFIG.ARENA_HEIGHT) * 0.95;
+    const centerY = canvas.height / 2;
+    const scale = getScale();
 
     return {
         x: centerX + (x - CONFIG.ARENA_WIDTH / 2) * scale,
@@ -73,8 +79,8 @@ function toGame(screenX, screenY) {
     const canvasY = (screenY - rect.top) * scaleY;
 
     const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2 + 20;
-    const scale = Math.min(canvas.width / CONFIG.ARENA_WIDTH, canvas.height / CONFIG.ARENA_HEIGHT) * 0.95;
+    const centerY = canvas.height / 2;
+    const scale = getScale();
 
     return {
         x: (canvasX - centerX) / scale + CONFIG.ARENA_WIDTH / 2,
