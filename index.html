@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snowfight!</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div id="ui">
+        <div id="startScreen" class="screen active">
+            <h1>Snowfight!</h1>
+            <p>Tap your player to select, tap ground to move. Long-press to charge throw, release to fire!</p>
+            <button class="btn" onclick="startGame()">Play</button>
+        </div>
+
+        <div id="winScreen" class="screen">
+            <h1>Victory!</h1>
+            <p>You knocked out the enemy team!</p>
+            <button class="btn" onclick="startGame()">Play Again</button>
+        </div>
+
+        <div id="loseScreen" class="screen">
+            <h1>Defeated!</h1>
+            <p>Your team was knocked out!</p>
+            <button class="btn" onclick="startGame()">Try Again</button>
+        </div>
+    </div>
+
+    <div id="hud" style="display: none;">
+        <div class="team-status blue">
+            <div><strong>Your Team</strong></div>
+            <div id="blueHealth"></div>
+        </div>
+        <div class="team-status red">
+            <div><strong>Enemy Team</strong></div>
+            <div id="redHealth"></div>
+        </div>
+    </div>
+
+    <div id="instructions" style="display: none;">
+        Tap player to select | Tap ground to move | Long-press to charge & throw
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
