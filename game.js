@@ -52,6 +52,23 @@ function resizeCanvas() {
     canvas.style.height = height + 'px';
 }
 
+function toggleFullscreen() {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
+}
+
 // ============= COORDINATE CONVERSION =============
 function getScale() {
     // Scale to fill the canvas, accounting for isometric squash on Y
@@ -1021,6 +1038,8 @@ canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
 
 window.addEventListener('resize', resizeCanvas);
+document.addEventListener('fullscreenchange', resizeCanvas);
+document.addEventListener('webkitfullscreenchange', resizeCanvas);
 
 // ============= START =============
 resizeCanvas();
