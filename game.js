@@ -412,9 +412,9 @@ function throwSnowball(player, chargePower) {
     const speed = CONFIG.SNOWBALL_SPEED_MIN + (CONFIG.SNOWBALL_SPEED_MAX - CONFIG.SNOWBALL_SPEED_MIN) * chargePower;
 
     snowballs.push({
-        x: player.x,
+        x: player.x + direction * (CONFIG.PLAYER_RADIUS + 10),
         y: player.y,
-        z: CONFIG.PLAYER_HEIGHT * 0.7,
+        z: CONFIG.PLAYER_HEIGHT * 0.5,
         vx: direction * speed,
         vy: 0,
         vz: 0,
@@ -483,41 +483,36 @@ function updateSnowball(snowball, index) {
     snowball.z += snowball.vz;
     snowball.vz -= 0.15;
 
-    if (snowball.z <= 0) {
-        snowballs.splice(index, 1);
-        return;
-    }
+    // Check player collision (only when in the air)
+    if (snowball.z > 0) {
+        for (let player of players) {
+            if (player.knockedOut) continue;
+            if (player.team === snowball.team) continue;
 
-    for (let player of players) {
-        if (player.knockedOut) continue;
-        if (player.team === snowball.team) continue;
+            const dx = player.x - snowball.x;
+            const dy = player.y - snowball.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
 
-        const dx = player.x - snowball.x;
-        const dy = player.y - snowball.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < CONFIG.PLAYER_RADIUS + CONFIG.SNOWBALL_RADIUS) {
+                player.health--;
+                player.hitFlash = CONFIG.HIT_FLASH_DURATION;
+                snowballs.splice(index, 1);
 
-        if (dist < CONFIG.PLAYER_RADIUS + CONFIG.SNOWBALL_RADIUS) {
-            player.health--;
-            player.hitFlash = CONFIG.HIT_FLASH_DURATION;
-            snowballs.splice(index, 1);
-
-            if (player.health <= 0) {
-                player.knockedOut = true;
-                checkWinCondition();
+                if (player.health <= 0) {
+                    player.knockedOut = true;
+                    checkWinCondition();
+                }
+                return;
             }
-            return;
         }
     }
 
-    const obs = checkObstacleCollision(snowball.x, snowball.y, CONFIG.SNOWBALL_RADIUS);
-    if (obs) {
-        snowballs.splice(index, 1);
-        return;
-    }
-
-    if (snowball.x < CONFIG.WALL_THICKNESS || snowball.x > CONFIG.ARENA_WIDTH - CONFIG.WALL_THICKNESS ||
-        snowball.y < CONFIG.WALL_THICKNESS || snowball.y > CONFIG.ARENA_HEIGHT - CONFIG.WALL_THICKNESS) {
-        snowballs.splice(index, 1);
+    // Snowball stays on the ground where it falls
+    if (snowball.z <= 0) {
+        snowball.z = 0;
+        snowball.vx = 0;
+        snowball.vy = 0;
+        snowball.vz = 0;
     }
 }
 
@@ -818,70 +813,17 @@ function drawPlayer(player) {
     ctx.arc(pos.x, headY, radius * 0.6, 0, Math.PI * 2);
     ctx.fill();
 
-    // Control indicator (being touched/dragged)
-    if (player.controlledBy !== null) {
-        ctx.strokeStyle = '#00ff00';
-        ctx.lineWidth = 3 * scale;
-        ctx.beginPath();
-        ctx.ellipse(pos.x, pos.y + 5 * scale, radius * 1.4, radius * 0.5, 0, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-
-    // Snowball count
-    if (player.snowballs > 0) {
-        for (let i = 0; i < player.snowballs; i++) {
-            ctx.fillStyle = '#fff';
-            ctx.strokeStyle = '#ccc';
-            ctx.lineWidth = 1 * scale;
-            ctx.beginPath();
-            ctx.arc(pos.x - 15 * scale + i * 12 * scale, pos.y + 15 * scale, 5 * scale, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-        }
-    }
-
-    // Tap reload progress
-    const now = performance.now();
-    const recentTaps = player.tapTimes.filter(t => now - t < CONFIG.TAP_WINDOW).length;
-    if (recentTaps > 0 && player.snowballs < CONFIG.MAX_SNOWBALLS) {
-        const progress = recentTaps / CONFIG.TAPS_TO_RELOAD;
-        ctx.strokeStyle = 'rgba(100, 200, 100, 0.5)';
-        ctx.lineWidth = 3 * scale;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius, 10 * scale, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = '#4f4';
-        ctx.lineWidth = 3 * scale;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius, 10 * scale, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
-        ctx.stroke();
-
-        // Show tap count
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold ' + (10 * scale) + 'px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(recentTaps + '/' + CONFIG.TAPS_TO_RELOAD, pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius + 4 * scale);
-    }
-
-    // Health
-    for (let i = 0; i < 2; i++) {
-        ctx.fillStyle = i < player.health ? '#ff6b6b' : '#444';
-        ctx.beginPath();
-        ctx.arc(pos.x - 8 * scale + i * 16 * scale, pos.y - height * CONFIG.ISO_ANGLE - radius * 1.8, 5 * scale, 0, Math.PI * 2);
-        ctx.fill();
-    }
 }
 
 function drawSnowball(snowball) {
     const pos = toScreen(snowball.x, snowball.y, snowball.z);
     const scale = getScale();
 
+    // Draw shadow at ground level - always small like other decorations
     const shadowPos = toScreen(snowball.x, snowball.y, 0);
-    const shadowScale = Math.max(0.3, 1 - snowball.z / 100);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
-    ctx.ellipse(shadowPos.x, shadowPos.y, CONFIG.SNOWBALL_RADIUS * scale * shadowScale, CONFIG.SNOWBALL_RADIUS * scale * 0.3 * shadowScale, 0, 0, Math.PI * 2);
+    ctx.ellipse(shadowPos.x, shadowPos.y + 5 * scale, CONFIG.SNOWBALL_RADIUS * scale * 1.1, CONFIG.SNOWBALL_RADIUS * scale * 0.3, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#ffffff';
@@ -911,8 +853,9 @@ function drawAimLine() {
 
 function drawAimLineForPlayer(player, charge, isPlayerControlled) {
     const scale = getScale();
-    const pos = toScreen(player.x, player.y, CONFIG.PLAYER_HEIGHT * 0.7);
     const direction = player.team === 'blue' ? 1 : -1;
+    const aimStartX = player.x + direction * (CONFIG.PLAYER_RADIUS + 10);
+    const pos = toScreen(aimStartX, player.y, CONFIG.PLAYER_HEIGHT * 0.5);
 
     const minLength = 50 * scale;
     const maxLength = 200 * scale;
@@ -942,52 +885,85 @@ function drawAimLineForPlayer(player, charge, isPlayerControlled) {
     ctx.closePath();
     ctx.fill();
 
-    if (isPlayerControlled) {
-        const barWidth = 50 * scale;
-        const barHeight = 8 * scale;
-        const barX = pos.x - barWidth / 2;
-        const barY = pos.y - 60 * scale;
-
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(barX, barY, barWidth, barHeight);
-
-        const gradient = ctx.createLinearGradient(barX, barY, barX + barWidth, barY);
-        gradient.addColorStop(0, '#4CAF50');
-        gradient.addColorStop(0.5, '#FFC107');
-        gradient.addColorStop(1, '#F44336');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(barX, barY, barWidth * charge, barHeight);
-
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2 * scale;
-        ctx.strokeRect(barX, barY, barWidth, barHeight);
-
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold ' + (10 * scale) + 'px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('POWER', pos.x, barY - 5 * scale);
-    }
 }
 
 function updateHUD() {
     const blueHealth = document.getElementById('blueHealth');
     const redHealth = document.getElementById('redHealth');
+    const blueSnowballs = document.getElementById('blueSnowballs');
+    const redSnowballs = document.getElementById('redSnowballs');
+    const blueReload = document.getElementById('blueReload');
+    const redReload = document.getElementById('redReload');
 
-    blueHealth.innerHTML = players
-        .filter(p => p.team === 'blue')
+    const now = performance.now();
+
+    // Blue team
+    const bluePlayers = players.filter(p => p.team === 'blue');
+    blueHealth.innerHTML = bluePlayers
         .map(p => `<div class="player-health">${
-            '<span class="heart' + (p.health < 1 ? ' empty' : '') + '"></span>' +
-            '<span class="heart' + (p.health < 2 ? ' empty' : '') + '"></span>'
-        }${p.knockedOut ? ' (KO)' : ''}</div>`)
+            '<span class="heart' + (p.health < 1 || p.knockedOut ? ' empty' : '') + '"></span>' +
+            '<span class="heart' + (p.health < 2 || p.knockedOut ? ' empty' : '') + '"></span>'
+        }</div>`)
         .join('');
 
-    redHealth.innerHTML = players
-        .filter(p => p.team === 'red')
+    // Blue snowballs
+    const bluePlayer = bluePlayers[0];
+    if (bluePlayer && !bluePlayer.knockedOut) {
+        let snowballHtml = '';
+        for (let i = 0; i < bluePlayer.snowballs; i++) {
+            snowballHtml += '<div class="snowball"></div>';
+        }
+        blueSnowballs.innerHTML = snowballHtml;
+
+        // Blue reload progress
+        const blueRecentTaps = bluePlayer.tapTimes.filter(t => now - t < CONFIG.TAP_WINDOW).length;
+        if (blueRecentTaps > 0 && bluePlayer.snowballs < CONFIG.MAX_SNOWBALLS) {
+            const progress = blueRecentTaps / CONFIG.TAPS_TO_RELOAD;
+            blueReload.innerHTML = `
+                <div>${blueRecentTaps}/${CONFIG.TAPS_TO_RELOAD}</div>
+                <div class="reload-bar"><div class="reload-progress" style="width: ${progress * 100}%"></div></div>
+            `;
+        } else {
+            blueReload.innerHTML = '';
+        }
+    } else {
+        blueSnowballs.innerHTML = '';
+        blueReload.innerHTML = '';
+    }
+
+    // Red team
+    const redPlayers = players.filter(p => p.team === 'red');
+    redHealth.innerHTML = redPlayers
         .map(p => `<div class="player-health">${
-            '<span class="heart' + (p.health < 1 ? ' empty' : '') + '"></span>' +
-            '<span class="heart' + (p.health < 2 ? ' empty' : '') + '"></span>'
-        }${p.knockedOut ? ' (KO)' : ''}</div>`)
+            '<span class="heart' + (p.health < 1 || p.knockedOut ? ' empty' : '') + '"></span>' +
+            '<span class="heart' + (p.health < 2 || p.knockedOut ? ' empty' : '') + '"></span>'
+        }</div>`)
         .join('');
+
+    // Red snowballs
+    const redPlayer = redPlayers[0];
+    if (redPlayer && !redPlayer.knockedOut) {
+        let snowballHtml = '';
+        for (let i = 0; i < redPlayer.snowballs; i++) {
+            snowballHtml += '<div class="snowball"></div>';
+        }
+        redSnowballs.innerHTML = snowballHtml;
+
+        // Red reload progress
+        const redRecentTaps = redPlayer.tapTimes.filter(t => now - t < CONFIG.TAP_WINDOW).length;
+        if (redRecentTaps > 0 && redPlayer.snowballs < CONFIG.MAX_SNOWBALLS) {
+            const progress = redRecentTaps / CONFIG.TAPS_TO_RELOAD;
+            redReload.innerHTML = `
+                <div>${redRecentTaps}/${CONFIG.TAPS_TO_RELOAD}</div>
+                <div class="reload-bar"><div class="reload-progress" style="width: ${progress * 100}%"></div></div>
+            `;
+        } else {
+            redReload.innerHTML = '';
+        }
+    } else {
+        redSnowballs.innerHTML = '';
+        redReload.innerHTML = '';
+    }
 }
 
 // ============= GAME LOOP =============

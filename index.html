@@ -33,17 +33,27 @@
 
     <div id="hud" style="display: none;">
         <div class="team-status blue">
-            <div><strong>You</strong></div>
-            <div id="blueHealth"></div>
+            <div class="hud-row">
+                <div id="blueHealth"></div>
+            </div>
+            <div class="hud-row">
+                <div id="blueSnowballs" class="snowball-indicator"></div>
+            </div>
+            <div id="blueReload" class="reload-indicator"></div>
         </div>
         <div class="team-status red">
-            <div><strong>Enemy</strong></div>
-            <div id="redHealth"></div>
+            <div class="hud-row">
+                <div id="redHealth"></div>
+            </div>
+            <div class="hud-row">
+                <div id="redSnowballs" class="snowball-indicator"></div>
+            </div>
+            <div id="redReload" class="reload-indicator"></div>
         </div>
     </div>
 
     <div id="instructions" style="display: none;">
-        Drag to move | Hold to charge & throw | Tap 10x to reload
+        Drag to move | Hold to throw | Tap fast to reload
     </div>
 
     <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶</button>
