@@ -534,6 +534,8 @@ function checkWinCondition() {
 
 // ============= RENDERING =============
 function drawArena() {
+    const scale = getScale();
+
     ctx.fillStyle = '#e8f4f8';
     const topLeft = toScreen(0, 0);
     const topRight = toScreen(CONFIG.ARENA_WIDTH, 0);
@@ -551,8 +553,8 @@ function drawArena() {
     const midTop = toScreen(CONFIG.ARENA_WIDTH / 2, CONFIG.WALL_THICKNESS);
     const midBottom = toScreen(CONFIG.ARENA_WIDTH / 2, CONFIG.ARENA_HEIGHT - CONFIG.WALL_THICKNESS);
     ctx.strokeStyle = 'rgba(100, 150, 200, 0.3)';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([15, 10]);
+    ctx.lineWidth = 3 * scale;
+    ctx.setLineDash([15 * scale, 10 * scale]);
     ctx.beginPath();
     ctx.moveTo(midTop.x, midTop.y);
     ctx.lineTo(midBottom.x, midBottom.y);
@@ -678,11 +680,12 @@ function drawFrontWall() {
 
 function drawTree(obs) {
     const pos = toScreen(obs.x, obs.y);
-    const radius = obs.radius;
+    const scale = getScale();
+    const radius = obs.radius * scale;
 
     ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
-    ctx.ellipse(pos.x, pos.y + 5, radius * 1.2, radius * 0.4, 0, 0, Math.PI * 2);
+    ctx.ellipse(pos.x, pos.y + 5 * scale, radius * 1.2, radius * 0.4, 0, 0, Math.PI * 2);
     ctx.fill();
 
     const trunkHeight = 60;
@@ -691,10 +694,10 @@ function drawTree(obs) {
 
     ctx.fillStyle = '#5d4037';
     ctx.beginPath();
-    ctx.moveTo(trunkPos.x - 8, trunkPos.y);
-    ctx.lineTo(trunkPos.x + 8, trunkPos.y);
-    ctx.lineTo(trunkTop.x + 6, trunkTop.y);
-    ctx.lineTo(trunkTop.x - 6, trunkTop.y);
+    ctx.moveTo(trunkPos.x - 8 * scale, trunkPos.y);
+    ctx.lineTo(trunkPos.x + 8 * scale, trunkPos.y);
+    ctx.lineTo(trunkTop.x + 6 * scale, trunkTop.y);
+    ctx.lineTo(trunkTop.x - 6 * scale, trunkTop.y);
     ctx.closePath();
     ctx.fill();
 
@@ -707,27 +710,28 @@ function drawTree(obs) {
     layers.forEach(layer => {
         const base = toScreen(obs.x, obs.y, layer.z);
         const top = toScreen(obs.x, obs.y, layer.z + 30);
+        const layerSize = layer.size * scale;
 
         ctx.fillStyle = '#2e7d32';
         ctx.beginPath();
-        ctx.moveTo(base.x - layer.size, base.y);
-        ctx.lineTo(base.x, base.y + layer.size * 0.3);
+        ctx.moveTo(base.x - layerSize, base.y);
+        ctx.lineTo(base.x, base.y + layerSize * 0.3);
         ctx.lineTo(top.x, top.y);
         ctx.closePath();
         ctx.fill();
 
         ctx.fillStyle = '#4caf50';
         ctx.beginPath();
-        ctx.moveTo(base.x + layer.size, base.y);
-        ctx.lineTo(base.x, base.y + layer.size * 0.3);
+        ctx.moveTo(base.x + layerSize, base.y);
+        ctx.lineTo(base.x, base.y + layerSize * 0.3);
         ctx.lineTo(top.x, top.y);
         ctx.closePath();
         ctx.fill();
 
         ctx.fillStyle = '#388e3c';
         ctx.beginPath();
-        ctx.moveTo(base.x - layer.size, base.y);
-        ctx.lineTo(base.x + layer.size, base.y);
+        ctx.moveTo(base.x - layerSize, base.y);
+        ctx.lineTo(base.x + layerSize, base.y);
         ctx.lineTo(top.x, top.y);
         ctx.closePath();
         ctx.fill();
@@ -736,49 +740,51 @@ function drawTree(obs) {
     ctx.fillStyle = '#fff';
     const snowTop = toScreen(obs.x, obs.y, 95);
     ctx.beginPath();
-    ctx.arc(snowTop.x, snowTop.y, 6, 0, Math.PI * 2);
+    ctx.arc(snowTop.x, snowTop.y, 6 * scale, 0, Math.PI * 2);
     ctx.fill();
 }
 
 function drawSnowHill(obs) {
     const pos = toScreen(obs.x, obs.y);
+    const scale = getScale();
 
     ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     ctx.beginPath();
-    ctx.ellipse(pos.x, pos.y + 8, obs.radiusX * 1.3, obs.radiusY * 0.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(pos.x, pos.y + 8 * scale, obs.radiusX * 1.3 * scale, obs.radiusY * 0.5 * scale, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#f5f9fc';
     ctx.beginPath();
-    ctx.ellipse(pos.x, pos.y, obs.radiusX, obs.radiusY * 0.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(pos.x, pos.y, obs.radiusX * scale, obs.radiusY * 0.6 * scale, 0, 0, Math.PI * 2);
     ctx.fill();
 
     const top = toScreen(obs.x, obs.y, 20);
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.ellipse(top.x - 5, top.y, obs.radiusX * 0.5, obs.radiusY * 0.3, -0.2, 0, Math.PI * 2);
+    ctx.ellipse(top.x - 5 * scale, top.y, obs.radiusX * 0.5 * scale, obs.radiusY * 0.3 * scale, -0.2, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = 'rgba(180, 200, 220, 0.4)';
     ctx.beginPath();
-    ctx.ellipse(pos.x + 10, pos.y + 5, obs.radiusX * 0.4, obs.radiusY * 0.25, 0.3, 0, Math.PI * 2);
+    ctx.ellipse(pos.x + 10 * scale, pos.y + 5 * scale, obs.radiusX * 0.4 * scale, obs.radiusY * 0.25 * scale, 0.3, 0, Math.PI * 2);
     ctx.fill();
 }
 
 function drawPlayer(player) {
     const pos = toScreen(player.x, player.y);
-    const radius = CONFIG.PLAYER_RADIUS;
-    const height = CONFIG.PLAYER_HEIGHT;
+    const scale = getScale();
+    const radius = CONFIG.PLAYER_RADIUS * scale;
+    const height = CONFIG.PLAYER_HEIGHT * scale;
 
     ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
-    ctx.ellipse(pos.x, pos.y + 5, radius * 1.2, radius * 0.4, 0, 0, Math.PI * 2);
+    ctx.ellipse(pos.x, pos.y + 5 * scale, radius * 1.2, radius * 0.4, 0, 0, Math.PI * 2);
     ctx.fill();
 
     if (player.knockedOut) {
         ctx.fillStyle = player.team === 'blue' ? '#6699cc' : '#cc6666';
         ctx.beginPath();
-        ctx.ellipse(pos.x, pos.y - 10, radius * 1.5, radius * 0.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(pos.x, pos.y - 10 * scale, radius * 1.5, radius * 0.5, 0, 0, Math.PI * 2);
         ctx.fill();
         return;
     }
@@ -815,9 +821,9 @@ function drawPlayer(player) {
     // Control indicator (being touched/dragged)
     if (player.controlledBy !== null) {
         ctx.strokeStyle = '#00ff00';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3 * scale;
         ctx.beginPath();
-        ctx.ellipse(pos.x, pos.y + 5, radius * 1.4, radius * 0.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(pos.x, pos.y + 5 * scale, radius * 1.4, radius * 0.5, 0, 0, Math.PI * 2);
         ctx.stroke();
     }
 
@@ -826,9 +832,9 @@ function drawPlayer(player) {
         for (let i = 0; i < player.snowballs; i++) {
             ctx.fillStyle = '#fff';
             ctx.strokeStyle = '#ccc';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1 * scale;
             ctx.beginPath();
-            ctx.arc(pos.x - 15 + i * 12, pos.y + 15, 5, 0, Math.PI * 2);
+            ctx.arc(pos.x - 15 * scale + i * 12 * scale, pos.y + 15 * scale, 5 * scale, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
         }
@@ -840,51 +846,52 @@ function drawPlayer(player) {
     if (recentTaps > 0 && player.snowballs < CONFIG.MAX_SNOWBALLS) {
         const progress = recentTaps / CONFIG.TAPS_TO_RELOAD;
         ctx.strokeStyle = 'rgba(100, 200, 100, 0.5)';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3 * scale;
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius, 10, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius, 10 * scale, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.strokeStyle = '#4f4';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3 * scale;
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius, 10, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
+        ctx.arc(pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius, 10 * scale, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
         ctx.stroke();
 
         // Show tap count
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 10px sans-serif';
+        ctx.font = 'bold ' + (10 * scale) + 'px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(recentTaps + '/' + CONFIG.TAPS_TO_RELOAD, pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius + 4);
+        ctx.fillText(recentTaps + '/' + CONFIG.TAPS_TO_RELOAD, pos.x, pos.y - height * CONFIG.ISO_ANGLE - radius + 4 * scale);
     }
 
     // Health
     for (let i = 0; i < 2; i++) {
         ctx.fillStyle = i < player.health ? '#ff6b6b' : '#444';
         ctx.beginPath();
-        ctx.arc(pos.x - 8 + i * 16, pos.y - height * CONFIG.ISO_ANGLE - radius * 1.8, 5, 0, Math.PI * 2);
+        ctx.arc(pos.x - 8 * scale + i * 16 * scale, pos.y - height * CONFIG.ISO_ANGLE - radius * 1.8, 5 * scale, 0, Math.PI * 2);
         ctx.fill();
     }
 }
 
 function drawSnowball(snowball) {
     const pos = toScreen(snowball.x, snowball.y, snowball.z);
+    const scale = getScale();
 
     const shadowPos = toScreen(snowball.x, snowball.y, 0);
     const shadowScale = Math.max(0.3, 1 - snowball.z / 100);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     ctx.beginPath();
-    ctx.ellipse(shadowPos.x, shadowPos.y, CONFIG.SNOWBALL_RADIUS * shadowScale, CONFIG.SNOWBALL_RADIUS * 0.3 * shadowScale, 0, 0, Math.PI * 2);
+    ctx.ellipse(shadowPos.x, shadowPos.y, CONFIG.SNOWBALL_RADIUS * scale * shadowScale, CONFIG.SNOWBALL_RADIUS * scale * 0.3 * shadowScale, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, CONFIG.SNOWBALL_RADIUS, 0, Math.PI * 2);
+    ctx.arc(pos.x, pos.y, CONFIG.SNOWBALL_RADIUS * scale, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.beginPath();
-    ctx.arc(pos.x - 2, pos.y - 2, CONFIG.SNOWBALL_RADIUS * 0.4, 0, Math.PI * 2);
+    ctx.arc(pos.x - 2 * scale, pos.y - 2 * scale, CONFIG.SNOWBALL_RADIUS * scale * 0.4, 0, Math.PI * 2);
     ctx.fill();
 }
 
@@ -903,11 +910,12 @@ function drawAimLine() {
 }
 
 function drawAimLineForPlayer(player, charge, isPlayerControlled) {
+    const scale = getScale();
     const pos = toScreen(player.x, player.y, CONFIG.PLAYER_HEIGHT * 0.7);
     const direction = player.team === 'blue' ? 1 : -1;
 
-    const minLength = 50;
-    const maxLength = 200;
+    const minLength = 50 * scale;
+    const maxLength = 200 * scale;
     const lineLength = minLength + (maxLength - minLength) * charge;
 
     const lineAlpha = isPlayerControlled ? 0.6 : 0.3;
@@ -916,8 +924,8 @@ function drawAimLineForPlayer(player, charge, isPlayerControlled) {
     const arrowColor = isPlayerControlled ? `rgba(255, 255, 0, ${arrowAlpha})` : `rgba(255, 100, 100, ${arrowAlpha})`;
 
     ctx.strokeStyle = lineColor;
-    ctx.lineWidth = isPlayerControlled ? 3 : 2;
-    ctx.setLineDash([10, 5]);
+    ctx.lineWidth = isPlayerControlled ? 3 * scale : 2 * scale;
+    ctx.setLineDash([10 * scale, 5 * scale]);
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
     ctx.lineTo(pos.x + direction * lineLength, pos.y);
@@ -929,16 +937,16 @@ function drawAimLineForPlayer(player, charge, isPlayerControlled) {
     ctx.fillStyle = arrowColor;
     ctx.beginPath();
     ctx.moveTo(arrowX, arrowY);
-    ctx.lineTo(arrowX - direction * 15, arrowY - 8);
-    ctx.lineTo(arrowX - direction * 15, arrowY + 8);
+    ctx.lineTo(arrowX - direction * 15 * scale, arrowY - 8 * scale);
+    ctx.lineTo(arrowX - direction * 15 * scale, arrowY + 8 * scale);
     ctx.closePath();
     ctx.fill();
 
     if (isPlayerControlled) {
-        const barWidth = 50;
-        const barHeight = 8;
+        const barWidth = 50 * scale;
+        const barHeight = 8 * scale;
         const barX = pos.x - barWidth / 2;
-        const barY = pos.y - 60;
+        const barY = pos.y - 60 * scale;
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillRect(barX, barY, barWidth, barHeight);
@@ -951,13 +959,13 @@ function drawAimLineForPlayer(player, charge, isPlayerControlled) {
         ctx.fillRect(barX, barY, barWidth * charge, barHeight);
 
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 * scale;
         ctx.strokeRect(barX, barY, barWidth, barHeight);
 
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 10px sans-serif';
+        ctx.font = 'bold ' + (10 * scale) + 'px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('POWER', pos.x, barY - 5);
+        ctx.fillText('POWER', pos.x, barY - 5 * scale);
     }
 }
 
